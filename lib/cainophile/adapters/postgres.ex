@@ -45,7 +45,18 @@ defmodule Cainophile.Adapters.Postgres do
 
   @impl true
   def init(config) do
-    adapter_impl(config).init(config)
+    {:ok, state} = adapter_impl(config).init(config)
+
+    state =
+      case Keyword.get(config, :receiver_fun) do
+        nil ->
+          state
+
+        fun ->
+          %{state | subscribers: [fun]}
+      end
+
+    {:ok, state}
   end
 
   @impl true
